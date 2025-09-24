@@ -8,7 +8,8 @@ import { rateLimiter } from './security/ratelimiter';
 import { logInfo, logDebug } from './logger/logger'; 
 import { env } from 'src/infrastructure/configs/env.config';
 import { ResponseInterceptor } from 'src/common/interceptors/response.interceptor';
-
+import { setupServerHealthCheck } from './health/server.health';
+import { setupDatabaseHealthCheck } from './health/database.health';
 
 export class ServerInfrastructure {
   constructor(private readonly app: INestApplication) {}
@@ -24,6 +25,9 @@ export class ServerInfrastructure {
     this.setupCookieParser();
     this.setupGlobalValidation();
     this.responseInterceptor();
+
+    setupServerHealthCheck(this.app);
+    setupDatabaseHealthCheck(this.app);
     logInfo('✅ Server infrastructure setup complete', 'ServerInfrastructure');
   }
 
