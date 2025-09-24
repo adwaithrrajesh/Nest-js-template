@@ -30,13 +30,15 @@
     "class-validator": "^0.14.2",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
+    "csurf": "^1.11.0",
     "dotenv": "^17.2.2",
     "express-rate-limit": "^8.1.0",
     "helmet": "^8.1.0",
     "hpp": "^0.2.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "xss-clean": "^0.1.4"
   },
   "prisma": {
     "seed": "ts-node --transpile-only prisma/seed.ts"

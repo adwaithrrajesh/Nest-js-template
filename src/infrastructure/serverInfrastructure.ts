@@ -3,6 +3,8 @@ import helmet from 'helmet';
 import compression from 'compression';
 import hpp from 'hpp';
 import cookieParser from 'cookie-parser';
+import csurf from 'csurf';
+import xss from 'xss-clean';
 import { json, urlencoded } from 'express';
 import { rateLimiter } from './security/ratelimiter';
 import { logInfo, logDebug } from './logger/logger'; 
@@ -16,6 +18,7 @@ export class ServerInfrastructure {
 
   public setup(): void {
     logInfo('🛠️  Setting up server infrastructure...', 'ServerInfrastructure');
+
     this.setupCors();
     this.setupHelmet();
     this.setupCompression();
@@ -23,11 +26,12 @@ export class ServerInfrastructure {
     this.setupRateLimiter();
     this.setupHttpParameterPollution();
     this.setupCookieParser();
+    this.setupCSRFProtection();
+    this.setupSanitization();
     this.setupGlobalValidation();
     this.responseInterceptor();
+    this.setupHealthChecks();
 
-    setupServerHealthCheck(this.app);
-    setupDatabaseHealthCheck(this.app);
     logInfo('✅ Server infrastructure setup complete', 'ServerInfrastructure');
   }
 
@@ -40,8 +44,8 @@ export class ServerInfrastructure {
     logDebug('CORS configured', 'ServerInfrastructure');
   }
 
-  private responseInterceptor():void{
-      this.app.useGlobalInterceptors(new ResponseInterceptor());
+  private responseInterceptor(): void {
+    this.app.useGlobalInterceptors(new ResponseInterceptor());
   }
 
   private setupHelmet(): void {
@@ -49,6 +53,10 @@ export class ServerInfrastructure {
       helmet({
         contentSecurityPolicy: process.env.NODE_ENV === 'production',
         crossOriginEmbedderPolicy: false,
+        referrerPolicy: { policy: 'no-referrer' },
+        frameguard: { action: 'deny' }, // prevent clickjacking
+        hsts: { maxAge: 63072000, includeSubDomains: true, preload: true }, // 2 years
+        noSniff: true, // X-Content-Type-Options
       }),
     );
     logDebug('Helmet middleware configured', 'ServerInfrastructure');
@@ -66,6 +74,7 @@ export class ServerInfrastructure {
   }
 
   private setupRateLimiter(): void {
+    // Can be extended for route-level rate limiting
     this.app.use(rateLimiter);
     logDebug('Rate limiter configured', 'ServerInfrastructure');
   }
@@ -76,8 +85,24 @@ export class ServerInfrastructure {
   }
 
   private setupCookieParser(): void {
-    this.app.use(cookieParser(process.env.COOKIE_SECRET || 'default_secret'));
+    this.app.use(
+      cookieParser(process.env.COOKIE_SECRET || 'default_secret', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+      }),
+    );
     logDebug('Cookie parser configured', 'ServerInfrastructure');
+  }
+
+  private setupCSRFProtection(): void {
+    this.app.use(csurf({ cookie: true }));
+    logDebug('CSRF protection configured', 'ServerInfrastructure');
+  }
+
+  private setupSanitization(): void {
+    this.app.use(xss());
+    logDebug('XSS  sanitization configured', 'ServerInfrastructure');
   }
 
   private setupGlobalValidation(): void {
@@ -91,10 +116,15 @@ export class ServerInfrastructure {
     logDebug('Global validation pipes configured', 'ServerInfrastructure');
   }
 
+  private setupHealthChecks(): void {
+    setupServerHealthCheck(this.app);
+    setupDatabaseHealthCheck(this.app);
+    logDebug('Health check endpoints configured', 'ServerInfrastructure');
+  }
+
   public async start(): Promise<void> {
-    const port = env.PORT
+    const port = env.PORT;
     await this.app.listen(port as number);
     logInfo(`🚀 Server running on port ${port}`, 'ServerInfrastructure');
   }
-
 }
