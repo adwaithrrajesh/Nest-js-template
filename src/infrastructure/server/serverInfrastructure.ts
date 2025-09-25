@@ -33,6 +33,7 @@ export class ServerInfrastructure {
     setupXSS(this.app);
     setupValidation(this.app);
     setupHealthChecks(this.app);
+    this.app.setGlobalPrefix('/api');
 
     logInfo('✅ Server infrastructure setup complete', 'ServerInfrastructure');
   }
