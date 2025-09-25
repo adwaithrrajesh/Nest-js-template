@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { env } from '@configs/env.config';
-import { logInfo } from '@logger/logger';
+import { logger, logInfo } from '@logger/logger';
 import { setupCors } from '@security/cors';
 import { setupHelmet } from '@security/helmet';
 import { setupCSRFProtection } from '@security/csrf';
@@ -13,6 +13,10 @@ import { setupCompression } from '@middleware/compression.middleware';
 import { setupValidation } from '@middleware/validation.middleware';
 import { setupHealthChecks } from '@infrastructure/health';
 import { ResponseInterceptor } from 'common/interceptors/response.interceptor';
+import { LoggingInterceptor } from 'common/interceptors/logging.interceptor';
+import { TimeoutInterceptor } from 'common/interceptors/timeout.interceptor';
+
+
 
 export class ServerInfrastructure {
   constructor(private readonly app: INestApplication) {}
@@ -35,6 +39,8 @@ export class ServerInfrastructure {
 
     this.app.setGlobalPrefix('/api');
     this.app.useGlobalInterceptors(new ResponseInterceptor());
+    this.app.useGlobalInterceptors(new LoggingInterceptor(logger));
+    this.app.useGlobalInterceptors(new TimeoutInterceptor())
 
     logInfo('✅ Server infrastructure setup complete', 'ServerInfrastructure');
   }
