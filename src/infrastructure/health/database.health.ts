@@ -5,9 +5,7 @@ import { PrismaService } from '@infrastructure/prisma/prisma.service';
 export const setupDatabaseHealthCheck = (app: INestApplication) => {
   app.getHttpAdapter().get('/health/db', async (req, res) => {
     try {
-
       const prisma = app.get(PrismaService);
-
 
       await prisma.$queryRaw`SELECT 1`;
 

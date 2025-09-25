@@ -33,6 +33,6 @@ export class XssSanitization implements NestMiddleware {
 // ✅ Wrapper to integrate with app
 export const setupXSS = (app: INestApplication) => {
   const middleware = new XssSanitization();
-  app.use(middleware.use); 
+  app.use(middleware.use);
   logDebug('XSS sanitization configured', 'ServerInfrastructure');
 };

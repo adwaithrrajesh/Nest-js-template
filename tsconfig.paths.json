@@ -11,6 +11,9 @@
         "@utils/*": ["utils/*"],
         "@modules/*": ["modules/*"],
         "@infrastructure/*": ["infrastructure/*"],
+        "@auth/*": ["app/auth/*"],
+        "@user/*": ["app/user/*"],
+
     }
   }
 }

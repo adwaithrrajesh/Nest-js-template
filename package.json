@@ -7,17 +7,20 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --config configurations/.prettierrc --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "commitlint": "commitlint --config configurations/commitlint.config.js --edit",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
+  },
+  "simple-git-hooks": {
+    "commit-msg": "npx commitlint --config configurations/commitlint.config.js --edit $1"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.6",
@@ -64,6 +67,7 @@
     "jest": "^30.0.0",
     "prettier": "^3.4.2",
     "prisma": "^6.16.2",
+    "simple-git-hooks": "^2.13.1",
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.5",
