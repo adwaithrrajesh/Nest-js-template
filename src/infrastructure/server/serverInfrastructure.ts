@@ -1,20 +1,18 @@
 import { INestApplication } from '@nestjs/common';
 import { env } from '@configs/env.config';
 import { logInfo } from '@logger/logger';
-
 import { setupCors } from '@security/cors';
 import { setupHelmet } from '@security/helmet';
 import { setupCSRFProtection } from '@security/csrf';
 import { setupXSS } from '@security/xss';
 import { setupRateLimiter } from '@infrastructure/security/ratelimiter';
 import { setupHPP } from '@security/hpp';
-
 import { setupBodyParser } from '@middleware/body-parser.middleware';
 import { setupCookieParser } from '@middleware/cookie-parser.middleware';
 import { setupCompression } from '@middleware/compression.middleware';
 import { setupValidation } from '@middleware/validation.middleware';
-
 import { setupHealthChecks } from '@infrastructure/health';
+
 
 export class ServerInfrastructure {
   constructor(private readonly app: INestApplication) {}

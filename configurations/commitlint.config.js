@@ -13,6 +13,7 @@ module.exports = {
         'perf',      // performance
         'test',      // tests
         'chore',     // build/CI stuff
+        'removed'
       ],
     ],
     // Enforce scope optional, lowercase, followed by colon
