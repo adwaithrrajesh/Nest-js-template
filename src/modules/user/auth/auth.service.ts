@@ -12,7 +12,7 @@ export class AuthService {
     private readonly userRepository: UserRepository
   ) {}
 
-  public async register(registerDto: RegisterDto): Promise<{ token: string; message: string }> {
+  public async register(registerDto: RegisterDto): Promise<{ token: string }> {
     const { email, password } = registerDto;
 
     const existingUser = await this.userRepository.findByEmail(email);
@@ -24,10 +24,10 @@ export class AuthService {
     const user = await this.userRepository.create(email, hashedPassword);
 
     const payload = { sub: user.id, email: user.email };
-    return { token: this.jwtService.sign(payload) ,message:'Registered successfully'};
+    return { token: this.jwtService.sign(payload) };
   }
 
-  public async login(loginDto: LoginDto): Promise<{ token: string; message: string }> {
+  public async login(loginDto: LoginDto): Promise<{ token: string;}> {
     const { email, password } = loginDto;
 
     const user = await this.userRepository.findByEmail(email);
@@ -36,6 +36,6 @@ export class AuthService {
     }
 
     const payload = { sub: user.id, email: user.email };
-    return { token: this.jwtService.sign(payload) , message:'login successful'};
+    return { token: this.jwtService.sign(payload)};
   }
 }
