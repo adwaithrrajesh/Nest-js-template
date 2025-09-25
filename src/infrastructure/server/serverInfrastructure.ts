@@ -12,7 +12,7 @@ import { setupCookieParser } from '@middleware/cookie-parser.middleware';
 import { setupCompression } from '@middleware/compression.middleware';
 import { setupValidation } from '@middleware/validation.middleware';
 import { setupHealthChecks } from '@infrastructure/health';
-
+import { ResponseInterceptor } from 'common/interceptors/response.interceptor';
 
 export class ServerInfrastructure {
   constructor(private readonly app: INestApplication) {}
@@ -31,7 +31,10 @@ export class ServerInfrastructure {
     setupXSS(this.app);
     setupValidation(this.app);
     setupHealthChecks(this.app);
+
+
     this.app.setGlobalPrefix('/api');
+    this.app.useGlobalInterceptors(new ResponseInterceptor());
 
     logInfo('✅ Server infrastructure setup complete', 'ServerInfrastructure');
   }
