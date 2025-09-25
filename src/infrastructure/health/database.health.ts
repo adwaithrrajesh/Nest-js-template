@@ -5,10 +5,10 @@ import { PrismaService } from '@infrastructure/prisma/prisma.service';
 export const setupDatabaseHealthCheck = (app: INestApplication) => {
   app.getHttpAdapter().get('/health/db', async (req, res) => {
     try {
-      // Get PrismaService instance from NestJS container
+
       const prisma = app.get(PrismaService);
 
-      // Simple DB connectivity check
+
       await prisma.$queryRaw`SELECT 1`;
 
       res.status(200).json({

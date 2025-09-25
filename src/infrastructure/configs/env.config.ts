@@ -4,6 +4,8 @@ import * as path from 'path';
 
 
 type NodeEnv = 'local' | 'development' | 'production';
+
+// specify your ENV HERE
 const REQUIRED_VARS = ['PORT', 'DATABASE_URL', 'CORS_ORIGIN', 'COOKIE_SECRET'] as const;
 type EnvVar = typeof REQUIRED_VARS[number];
 
