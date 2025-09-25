@@ -1,6 +1,6 @@
 // src/common/health/database.health.ts
 import { INestApplication } from '@nestjs/common';
-import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
+import { PrismaService } from '@infrastructure/prisma/prisma.service';
 
 export const setupDatabaseHealthCheck = (app: INestApplication) => {
   app.getHttpAdapter().get('/health/db', async (req, res) => {

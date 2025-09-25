@@ -1,0 +1,16 @@
+// tsconfig.paths.json
+{
+  "compilerOptions": {
+    "baseUrl": "src", 
+    "paths": {
+        "@logger/*": ["infrastructure/logger/*"],
+        "@configs/*": ["infrastructure/configs/*"],
+        "@security/*": ["infrastructure/security/*"],
+        "@middleware/*": ["infrastructure/middleware/*"],
+        "@server/*": ["infrastructure/server/*"],
+        "@utils/*": ["utils/*"],
+        "@modules/*": ["modules/*"],
+        "@infrastructure/*": ["infrastructure/*"],
+    }
+  }
+}
