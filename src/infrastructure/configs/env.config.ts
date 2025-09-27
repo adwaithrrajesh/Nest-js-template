@@ -9,7 +9,8 @@ const REQUIRED_VARS = [
   'DATABASE_URL',
   'CORS_ORIGIN',
   'COOKIE_SECRET',
-  'JWT_SECRET'
+  'JWT_ACCESS_SECRET',
+  'JWT_REFRESH_SECRET'
 ] as const;
 type EnvVar = (typeof REQUIRED_VARS)[number];
 

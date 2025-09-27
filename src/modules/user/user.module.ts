@@ -12,10 +12,7 @@ import { JwtUserGuard } from 'common/guard/jwt.user.guard';
 @Module({
   imports: [
     PrismaModule,
-    JwtModule.register({
-      secret: env.JWT_SECRET as string,
-      signOptions: { expiresIn: '1h' },
-    }),
+    JwtModule
   ],
   providers: [
     UserRepository,
@@ -23,7 +20,7 @@ import { JwtUserGuard } from 'common/guard/jwt.user.guard';
     AuthService,
     {
       provide: APP_GUARD,
-      useClass: JwtUserGuard, 
+      useClass: JwtUserGuard,
     },
   ],
   controllers: [AuthController],

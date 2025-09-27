@@ -15,6 +15,7 @@ import { setupHealthChecks } from '@infrastructure/health';
 import { ResponseInterceptor } from 'common/interceptors/response.interceptor';
 import { LoggingInterceptor } from 'common/interceptors/logging.interceptor';
 import { TimeoutInterceptor } from 'common/interceptors/timeout.interceptor';
+import { AllExceptionsFilter } from 'common/filters/all-exceptions.filter';
 
 
 
@@ -41,6 +42,8 @@ export class ServerInfrastructure {
     this.app.useGlobalInterceptors(new ResponseInterceptor());
     this.app.useGlobalInterceptors(new LoggingInterceptor(logger));
     this.app.useGlobalInterceptors(new TimeoutInterceptor())
+
+    this.app.useGlobalFilters(new AllExceptionsFilter());
 
     logInfo('✅ Server infrastructure setup complete', 'ServerInfrastructure');
   }
