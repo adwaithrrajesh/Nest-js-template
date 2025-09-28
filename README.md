@@ -208,7 +208,6 @@ The API will be available at:
 | POST   | `/auth/register`    | Register a new user      | ❌ No         |
 | POST   | `/auth/login`       | Login and get tokens     | ❌ No         |
 | GET    | `/auth/refresh`     | Refresh access token     | ✅ Yes (cookie) |
-| POST   | `/auth/logout`      | Logout and clear cookie  | ✅ Yes        |
 
 ---
 
