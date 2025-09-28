@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { env } from '@configs/env.config';
 
-export const TOKEN_TYPE_KEY = 'tokenType'; // key to identify token type
+export const TOKEN_TYPE_KEY = 'tokenType';
 
 @Injectable()
 export class JwtUserGuard implements CanActivate {
@@ -15,6 +15,9 @@ export class JwtUserGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest<Request>();
+
+    // Check if route is marked as public
     const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
       context.getHandler(),
       context.getClass(),
@@ -22,29 +25,49 @@ export class JwtUserGuard implements CanActivate {
 
     if (isPublic) return true;
 
-    // Determine token type (default to 'access')
+    // Determine whether this endpoint expects an access token or refresh token
     const tokenType = this.reflector.getAllAndOverride<'access' | 'refresh'>(TOKEN_TYPE_KEY, [
       context.getHandler(),
       context.getClass(),
     ]) ?? 'access';
 
-    const request = context.switchToHttp().getRequest<Request>();
-    const authHeader = request.headers['authorization'];
+    let token: string | undefined;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedException('No token provided');
+    // ------------------------------
+    // Access Token → from Authorization header
+    // ------------------------------
+    if (tokenType === 'access') {
+      const authHeader = request.headers['authorization'];
+
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        throw new UnauthorizedException('No access token provided');
+      }
+
+      token = authHeader.split(' ')[1];
     }
 
-    const token = authHeader.split(' ')[1];
+    // ------------------------------
+    // Refresh Token → from cookies
+    // ------------------------------
+    if (tokenType === 'refresh') {
+      token = request.cookies?.refresh_token;
 
-    // Choose secret key based on token type
+      if (!token) {
+        throw new UnauthorizedException('No refresh token provided in cookies');
+      }
+    }
+
+    // Choose the correct secret key
     const secret = tokenType === 'access' ? env.JWT_ACCESS_SECRET : env.JWT_REFRESH_SECRET;
 
     try {
-      const payload = await this.jwtService.verifyAsync(token, { secret:secret as string });
+      // Verify the token
+      const payload = await this.jwtService.verifyAsync(token as string, { secret: secret as string });
+
+      // Attach payload to request for controller use
       request['user'] = payload;
 
-      // Optional check to ensure token type matches metadata
+      // Ensure the token type matches what we expect
       if (payload.type !== tokenType) {
         throw new UnauthorizedException(`Invalid token type. Expected ${tokenType}`);
       }

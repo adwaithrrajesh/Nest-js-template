@@ -1,39 +1,57 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, BadRequestException, Get, UnauthorizedException, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  Get,
+  Res,
+} from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { RegisterDto, LoginDto } from '../dto/auth.dto';
 import { Public } from 'common/decorators/public.decorator';
 import { TokenType } from 'common/decorators/token.decorator';
 import { GetUser } from 'common/decorators/user.decorator';
+import { env } from '@configs/env.config';
 
-/**
- * Controller for handling authentication-related HTTP requests
- */
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  /** Helper: Set secure refresh token cookie */
+  private setRefreshCookie(res: any, token: string) {
+    res.cookie('refresh_token', token, {
+      httpOnly: true,
+      secure: env.isProduction,
+      sameSite: 'strict',
+      path: '/api/auth/refresh',
+    });
+  }
+
   @Post('register')
   @Public()
   @HttpCode(HttpStatus.CREATED)
-  public async register(@Body() registerDto: RegisterDto): Promise<{ data: any; message:string }> {
-    const token = await this.authService.register(registerDto);
-    return{data:token, message:"Registered successfully"}
+  async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res) {
+    const { accessToken, refreshToken } = await this.authService.register(dto);
+    this.setRefreshCookie(res, refreshToken);
+    return { data: { accessToken }, message: 'Registered successfully' };
   }
 
   @Post('login')
+  @Public()
   @HttpCode(HttpStatus.OK)
-  public async login(@Body() loginDto: LoginDto, @GetUser() user:any): Promise<{ data: any; message: string }> {
-    console.log(user)
-    const token =  await this.authService.login(loginDto);
-    return {data:token,message:"Login successfully"}
+  async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res) {
+    const { accessToken, refreshToken } = await this.authService.login(dto);
+    this.setRefreshCookie(res, refreshToken);
+    return { data: { accessToken }, message: 'Login successful' };
   }
 
   @Get('refresh')
   @HttpCode(HttpStatus.OK)
-  @TokenType('refresh') 
-  public async refreshToken(@GetUser() user: any): Promise<any> {
-    const token = await this.authService.refreshTokens(user);
-    return {data:token, message:"Token renewed successfully"}
+  @TokenType('refresh')
+  async refreshToken(@GetUser() user: any, @Res({ passthrough: true }) res) {
+    const { accessToken, refreshToken } = await this.authService.refreshTokens(user);
+    this.setRefreshCookie(res, refreshToken);
+    return { data: { accessToken }, message: 'Token renewed successfully' };
   }
-  
 }
