@@ -1,10 +1,9 @@
 {
   "name": "nest-template",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "A production-ready NestJS template with authentication, Prisma ORM, security layers, and scalable architecture",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --config configurations/.prettierrc --write \"src/**/*.ts\" \"test/**/*.ts\"",

@@ -1,98 +1,225 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🚀 NestJS Template Project
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A production-ready **NestJS template** with a clean and scalable architecture.  
+It includes **authentication, Prisma ORM, global security layers, logging, and middleware**, making it an ideal starter project for building secure, enterprise-grade applications.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## 🌟 Features
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Authentication**
+  - JWT-based authentication with **access** and **refresh tokens**
+  - Refresh tokens stored securely in **HTTP-only cookies**
+- **Database**
+  - Integrated **Prisma ORM** with a sample `User` schema
+- **Security**
+  - CORS configuration
+  - CSRF protection
+  - XSS protection
+  - HTTP Parameter Pollution (HPP) prevention
+  - Rate limiting to prevent brute force attacks
+  - Secure headers with Helmet
+- **Global Interceptors**
+  - Logging of incoming requests and responses
+  - Unified API response formatting
+  - Automatic timeout handling for requests
+- **Centralized Error Handling**
+  - Global exception filter for consistent error responses
+- **Scalable Modular Architecture**
+  - Cleanly separated modules for maintainability and growth
+- **Health Checks**
+  - Endpoint to monitor service health and readiness
 
-## Project setup
+---
 
-```bash
-$ pnpm install
+## 🗂 Folder Structure
+
+```
+src
+├── common/                # Shared components and utilities
+│   ├── decorators/        # Custom decorators (@Public, @GetUser, @TokenType)
+│   ├── dto/               # Reusable DTOs
+│   ├── filters/           # Global error handling
+│   ├── guard/             # JWT guards for access & refresh tokens
+│   ├── interceptors/      # Logging, response formatting, timeouts
+│   └── utils/             # Utility functions
+│
+├── infrastructure/        # Core backend infrastructure
+│   ├── configs/           # Environment configurations
+│   ├── health/            # Health check endpoints
+│   ├── logger/            # Centralized logging
+│   ├── middleware/        # Middlewares (body parser, cookies, validation, etc.)
+│   ├── prisma/            # Prisma module and service
+│   ├── security/          # Security utilities (CORS, CSRF, XSS, Rate Limiting)
+│   └── server/            # Server bootstrapping and configuration
+│
+└── modules/               # Application modules
+│    └── user/              # Example user/auth module
+│        ├── controllers/   # REST API endpoints
+│        ├── services/      # Business logic
+│        └── repositories/  # Prisma DB access layer
+│
+└──main.ts # main server 
+
 ```
 
-## Compile and run the project
+---
 
-```bash
-# development
-$ pnpm run start
+## 🔐 Authentication Flow
 
-# watch mode
-$ pnpm run start:dev
+1. **Register** (`POST /api/auth/register`)
+   - Create a new user with hashed password
+   - Generate:
+     - Access token (short-lived)
+     - Refresh token (long-lived, stored in HTTP-only cookie)
 
-# production mode
-$ pnpm run start:prod
+2. **Login** (`POST /api/auth/login`)
+   - Validate user credentials
+   - Generate a new pair of access and refresh tokens
+   - Refresh token sent via secure cookie
+
+3. **Refresh Token** (`GET /api/auth/refresh`)
+   - Uses the refresh token from the cookie
+   - Returns a new access token
+   - Issues a new refresh token and updates the cookie
+
+
+---
+
+## 🏗 Server Infrastructure
+
+The `ServerInfrastructure` class is the **entry point for setting up the application environment**.  
+It centralizes configuration and ensures the app is secure and production-ready.
+
+### Responsibilities
+- **Security Layers**
+  - `CORS` → Cross-Origin Resource Sharing
+  - `Helmet` → Secure HTTP headers
+  - `CSRF` → Cross-Site Request Forgery protection
+  - `XSS` → Prevent Cross-Site Scripting attacks
+  - `HPP` → Prevent HTTP Parameter Pollution
+  - `Rate Limiter` → Protect against brute-force attacks
+
+- **Global Middleware**
+  - `Body Parser` → Parse incoming request bodies
+  - `Cookie Parser` → Parse and sign cookies securely
+  - `Compression` → Enable GZIP compression
+  - `Validation` → Request validation middleware
+
+- **Health Checks**
+  - Monitor application and database readiness
+
+- **Global Interceptors**
+  - `ResponseInterceptor` → Shape and standardize API responses
+  - `LoggingInterceptor` → Log incoming requests and outgoing responses
+  - `TimeoutInterceptor` → Automatically handle slow requests
+
+- **Global Filters**
+  - `AllExceptionsFilter` → Centralized error handling
+
+- **API Configuration**
+  - Global API prefix `/api`
+
+---
+
+### Server Bootstrap Code
+```typescript
+const server = new ServerInfrastructure(app);
+server.setup();
+await server.start();
 ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ pnpm run test
+## ⚙️ Environment Variables
 
-# e2e tests
-$ pnpm run test:e2e
+Create a `.env` file in the project root:
 
-# test coverage
-$ pnpm run test:cov
+```env
+# Server
+PORT=8000
+
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/db_name"
+
+# JWT
+JWT_ACCESS_SECRET=your_access_secret
+JWT_REFRESH_SECRET=your_refresh_secret
+
+# Cookie
+COOKIE_SECRET=your_cookie_secret
 ```
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## 🚀 Getting Started
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+### 1. Clone the repository
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+git clone <repository_url>
+cd nest-template
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 2. Install dependencies
+```bash
+pnpm install
+```
 
-## Resources
+### 3. Setup database
+```bash
+pnpm prisma migrate dev
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+### 4. Start the server
+```bash
+pnpm run start:dev
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+The API will be available at:  
+`http://localhost:8000/api`
 
-## Support
+---
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## 📡 API Endpoints
 
-## Stay in touch
+| Method | Endpoint            | Description              | Auth Required |
+|--------|---------------------|--------------------------|---------------|
+| POST   | `/auth/register`    | Register a new user      | ❌ No         |
+| POST   | `/auth/login`       | Login and get tokens     | ❌ No         |
+| GET    | `/auth/refresh`     | Refresh access token     | ✅ Yes (cookie) |
+| POST   | `/auth/logout`      | Logout and clear cookie  | ✅ Yes        |
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+---
 
-## License
+## 🔧 Technologies Used
+- [NestJS](https://nestjs.com/) - Progressive Node.js framework
+- [Prisma](https://www.prisma.io/) - Next-gen ORM for database
+- [TypeScript](https://www.typescriptlang.org/) - Strongly typed JavaScript
+- [JWT](https://jwt.io/) - JSON Web Tokens for authentication
+- [Helmet](https://helmetjs.github.io/) - Security headers
+- [Rate Limiter](https://www.npmjs.com/package/express-rate-limit) - Protect against brute force attacks
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+
+## 🌱 Why This Architecture?
+
+This architecture is designed for:
+- **Scalability** → Clear separation of concerns for easy growth
+- **Security** → Out-of-the-box best practices for production
+- **Maintainability** → Modular and clean codebase
+- **Performance** → Optimized middleware and interceptors
+
+---
+
+## 🚀 Future Improvements
+- Role-based access control (RBAC)
+- Swagger API documentation
+- Automated testing (unit and integration)
+- CI/CD pipelines
+- Advanced monitoring and analytics
+
+---
+
+## 📜 License
+This project **`nest-template`** is licensed under the **MIT License**.  
+You are free to use, modify, and distribute this project in personal or commercial projects. See the full [LICENSE](./LICENSE) file for details.
