@@ -133,21 +133,42 @@ await server.start();
 
 ## ⚙️ Environment Variables
 
-Create a `.env` file in the project root:
+You can use **multiple `.env` files** for different environments (e.g., `.env.local`, `.env.development`, `.env.production`). The app will pick the appropriate file based on the `NODE_ENV` variable.
 
+> **Note:**  
+> Only `NODE_ENV` and `DATABASE_URL` should be defined in the base `.env` file.  
+> All other sensitive or environment-specific variables (such as `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `COOKIE_SECRET`, `PORT`, etc.) should be placed in the appropriate environment file:  
+> - `.env.local` for local development  
+> - `.env.development` for development  
+> - `.env.production` for production  
+> This helps keep secrets and configuration cleanly separated per environment.
+
+Example `.env` file (base):
+```env
+# Environment
+NODE_ENV=local
+
+# Database
+DATABASE_URL="postgresql://<username>:<password>@<host>:<port>/<database_name>"
+```
+
+Example `.env.local`, `.env.development`, or `.env.production`:
 ```env
 # Server
 PORT=8000
 
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/db_name"
-
 # JWT
-JWT_ACCESS_SECRET=your_access_secret
-JWT_REFRESH_SECRET=your_refresh_secret
+JWT_ACCESS_SECRET=<your_access_secret>
+JWT_REFRESH_SECRET=<your_refresh_secret>
+
+# Database
+DATABASE_URL="postgresql://<username>:<password>@<host>:<port>/<database_name>"
 
 # Cookie
-COOKIE_SECRET=your_cookie_secret
+COOKIE_SECRET=<your_cookie_secret>
+
+#CORS ORIGIN 
+CORS_ORIGIN = =http://localhost:3000,http://127.0.0.1:3000
 ```
 
 ---
@@ -156,7 +177,7 @@ COOKIE_SECRET=your_cookie_secret
 
 ### 1. Clone the repository
 ```bash
-git clone <repository_url>
+git clone https://github.com/adwaithrrajesh/Nest-js-template.git
 cd nest-template
 ```
 
